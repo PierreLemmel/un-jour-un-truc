@@ -66,6 +66,8 @@ let playerLpf: Tone.Filter;
 let player: Tone.Player;
 let hum: Tone.Oscillator;
 let humLpf: Tone.Filter;
+
+let synthStarted = false;
 async function startSynth() {
 	await Tone.start();
 	
@@ -104,6 +106,7 @@ async function startSynth() {
 	
 	hum.start();
 	vibrato.start();
+	synthStarted = true;
 }
 
 
@@ -168,6 +171,10 @@ let lastTime = 0;
 const offsetAmplitude = 0.08;
 const offsetSpeed = 40;
 function updateContent() {
+
+	if (!synthStarted) {
+		return;
+	}
 
 	const currentTime = performance.now();
 	const deltaTime = currentTime - lastTime;
