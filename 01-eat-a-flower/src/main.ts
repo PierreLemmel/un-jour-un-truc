@@ -118,9 +118,16 @@ let contentFps = 0;
 let contentFpsCounter = 0;
 let contentFpsLastSecond = 0;
 
+const debugInfo = document.getElementById("debug-info") as HTMLDivElement;
 if (!showDebug) {
-	document.getElementById("debug-info")?.classList.add("hidden");
+	debugInfo.classList.add("hidden");
+	debugInfo.classList.remove("flex");
 }
+else {
+	debugInfo.classList.remove("hidden");
+	debugInfo.classList.add("flex");
+}
+
 
 let currentScore = 0;
 let targetScore = 0;

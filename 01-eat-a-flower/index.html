@@ -7,10 +7,10 @@
     <title>Flower eater</title>
   </head>
   <body>
-    <main id="app" class="bg-pink-500 w-screen h-screen relative">
+    <main id="app" class="bg-pink-500 w-screen h-screen relative flex flex-col items-center justify-center">
       <video id="webcam" autoplay playsinline class="absolute bottom-4 left-4 w-1/4 h-auto object-contain -scale-x-100 z-10"></video>
       <video id="flower" src="flower.mp4" paused muted class="absolute inset-0 object-cover w-full h-full z-0"></video>
-      <div id="debug-info" class="absolute top-0 left-0 text-white bg-black/50 p-4 flex flex-col gap-1 z-20 text-sm">
+      <div id="debug-info" class="absolute top-0 left-0 text-white bg-black/50 p-4 flex-col gap-1 z-20 text-sm hidden">
         <div id="mouth-pucker-value">MOUTH_PUCKER_VALUE</div>
         <div id="jaw-open-value">JAW_OPEN_VALUE</div>
         <div id="score-value">SCORE_VALUE</div>
