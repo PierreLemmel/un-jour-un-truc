@@ -26,14 +26,18 @@
         <div class="text-white text-lg">Open the mouth to control the flower</div>
         <button id="start-synth" class="bg-white text-black px-6 py-3 rounded-md mt-5 cursor-pointer hover:bg-gray-200 transition-colors" onclick="start()">Got it</button>
       </div>
-      <video id="webcam" autoplay playsinline class="absolute bottom-4 left-4 w-1/4 h-auto object-contain -scale-x-100 z-10"></video>
-      <video id="flower" src="flower.mp4" paused muted class="absolute inset-0 object-cover w-full h-full z-0"></video>
+      <video id="webcam" autoplay playsinline class="absolute bottom-10 left-2 w-1/2 md:bottom-4 md:left-4 md:w-1/4 h-auto object-contain -scale-x-100 z-10"></video>
+      <video id="flower" src="flower.mp4" preload="auto" paused muted class="absolute inset-0 object-cover w-full h-full z-0"></video>
+      <div class="absolute bottom-0 w-full p-2 bg-black/50 text-white text-sm text-center">
+        Réalisé par <a href="https://plml.fr" target="_blank" class="text-white underline hover:text-gray-200 transition-colors cursor-pointer">@Pierre Lemmel</a>
+      </div>
       <div id="debug-info" class="absolute top-0 left-0 text-white bg-black/50 p-4 flex-col gap-1 z-20 text-sm hidden">
         <div id="mouth-pucker-value">MOUTH_PUCKER_VALUE</div>
         <div id="jaw-open-value">JAW_OPEN_VALUE</div>
         <div id="score-value">SCORE_VALUE</div>
         <div id="detection-fps">DETECTION_FPS</div>
         <div id="content-fps">CONTENT_FPS</div>
+        <div id="custom-msg">CUSTOM_MSG</div>
       </div>
     </main>
     <script type="module" src="/src/main.ts"></script>

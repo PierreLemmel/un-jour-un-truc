@@ -182,6 +182,8 @@ const startOffsetSpeed = 33;
 
 const endOffsetAmplitude = 0.08;
 const endOffsetSpeed = 40;
+
+
 function updateContent() {
 
 	if (!started) {
@@ -202,7 +204,14 @@ function updateContent() {
 	const endOffset = endOffsetAmplitude * (1 - Math.sin(endOffsetSpeed * currentTime / 1000)) / 2;
 
 	const videoProgress = clamp(currentScore, startOffset, 1 - endOffset);
-	flower.currentTime = videoProgress * flower.duration;
+
+	if ('fastSeek' in flower) {
+		flower.fastSeek(videoProgress * flower.duration);
+	}
+	else {
+		const flowerElement = flower as HTMLVideoElement;
+		flowerElement.currentTime = videoProgress * flowerElement.duration;
+	}
 
 	player.volume.value = Math.min(0, -60 + currentScore * 150);
 	playerLpf.frequency.value = quadraticInterpolation(currentScore, 200, 6000);
