@@ -69,8 +69,11 @@ let humLpf: Tone.Filter;
 
 let synthStarted = false;
 async function startSynth() {
+
+	console.log("Starting synth");
 	await Tone.start();
 	
+	console.log("Filtering player");
 	playerLpf = new Tone.Filter({
 		frequency: 200,
 		type: "lowpass",
@@ -78,35 +81,40 @@ async function startSynth() {
 		Q: 1,
 	}).toDestination();
 
+	console.log("Creating player");
 	player = new Tone.Player({
 		url: "shout.mp3",
 		autostart: true,
 		loop: true
 	}).connect(playerLpf);
 
-
+	console.log("Creating hum");
 	humLpf = new Tone.Filter({
 		frequency: 400,
 		type: "lowpass",
 		rolloff: -24,
 		Q: 1,
 	}).toDestination();
-	
+	console.log("Creating humLpf");
+
 	hum = new Tone.Oscillator({
 		frequency: 110,
 		type: "triangle",
 		volume: -100
 	}).connect(humLpf);
-	
+	console.log("Creating hum");
 	const vibrato = new Tone.LFO({
 		frequency: 4,
 		min: 108,
 		max: 112
 	}).connect(hum.frequency);
-	
+	console.log("Creating vibrato");
 	hum.start();
+	console.log("Starting vibrato");
 	vibrato.start();
+	console.log("Synth started");
 	synthStarted = true;
+	console.log("Done");
 }
 
 
