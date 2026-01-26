@@ -9,23 +9,6 @@ const video = document.getElementById("webcam") as HTMLVideoElement;
 let faceLandmarker: FaceLandmarker;
 let lastVideoTime = -1;
 
-async function init() {
-	const vision = await FilesetResolver.forVisionTasks(
-		"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-	);
-
-	faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-		baseOptions: {
-			modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-			delegate: "GPU"
-		},
-		outputFaceBlendshapes: true,
-		runningMode: "VIDEO"
-	});
-
-  	startWebcam();
-}
-
 async function startWebcam() {
 	const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 	video.srcObject = stream;
@@ -74,9 +57,24 @@ declare global {
 }
 
 let started = false;
-window.start = function() {
+window.start = async function() {
 	document.getElementById("start-screen")?.remove();
 	startSynth();
+	const vision = await FilesetResolver.forVisionTasks(
+		"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+	);
+
+	faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+		baseOptions: {
+			modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+			delegate: "GPU"
+		},
+		outputFaceBlendshapes: true,
+		runningMode: "VIDEO"
+	});
+
+  	startWebcam();
+
 	started = true;
 }
 
@@ -219,5 +217,3 @@ function updateContent() {
 		contentFpsCounter = 0;
 	}
 }
-
-init();
