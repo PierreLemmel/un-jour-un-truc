@@ -124,9 +124,6 @@ async function startSynth() {
 }
 
 
-
-startSynth();
-
 let detectionFps = 0;
 let detectionFpsCounter = 0;
 let detectionFpsLastSecond = 0;
