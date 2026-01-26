@@ -8,6 +8,14 @@
   </head>
   <body>
     <main id="app" class="bg-black w-screen h-screen relative flex flex-col items-center justify-center">
+      <div
+        class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center bg-black z-100 gap-2"
+        id="start-screen"
+      >
+        <div class="text-white text-4xl font-bold">Flower eater</div>
+        <div class="text-white text-lg">Open the mouth to control the flower</div>
+        <button id="start-synth" class="bg-white text-black px-6 py-3 rounded-md mt-5 cursor-pointer hover:bg-gray-200 transition-colors" onclick="start()">Got it</button>
+      </div>
       <video id="webcam" autoplay playsinline class="absolute bottom-4 left-4 w-1/4 h-auto object-contain -scale-x-100 z-10"></video>
       <video id="flower" src="flower.mp4" paused muted class="absolute inset-0 object-cover w-full h-full z-0"></video>
       <div id="debug-info" class="absolute top-0 left-0 text-white bg-black/50 p-4 flex-col gap-1 z-20 text-sm hidden">

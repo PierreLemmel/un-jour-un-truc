@@ -67,14 +67,24 @@ let player: Tone.Player;
 let hum: Tone.Oscillator;
 let humLpf: Tone.Filter;
 
-let synthStarted = false;
+declare global {
+	interface Window {
+		start: () => void;
+	}
+}
+
+let started = false;
+window.start = function() {
+	document.getElementById("start-screen")?.remove();
+	startSynth();
+	started = true;
+}
+
 async function startSynth() {
 
 	try {
-		console.log("Starting synth");
 		await Tone.start();
 		
-		console.log("Filtering player");
 		playerLpf = new Tone.Filter({
 			frequency: 200,
 			type: "lowpass",
@@ -82,40 +92,31 @@ async function startSynth() {
 			Q: 1,
 		}).toDestination();
 
-		console.log("Creating player");
 		player = new Tone.Player({
 			url: "shout.mp3",
 			autostart: true,
 			loop: true
 		}).connect(playerLpf);
 
-		console.log("Creating hum");
 		humLpf = new Tone.Filter({
 			frequency: 400,
 			type: "lowpass",
 			rolloff: -24,
 			Q: 1,
 		}).toDestination();
-		console.log("Creating humLpf");
 
 		hum = new Tone.Oscillator({
 			frequency: 110,
 			type: "triangle",
 			volume: -100
 		}).connect(humLpf);
-		console.log("Creating hum");
 		const vibrato = new Tone.LFO({
 			frequency: 4,
 			min: 108,
 			max: 112
 		}).connect(hum.frequency);
-		console.log("Creating vibrato");
 		hum.start();
-		console.log("Starting vibrato");
 		vibrato.start();
-		console.log("Synth started");
-		synthStarted = true;
-		console.log("Done");
 	}
 	catch (error) {
 		console.error("Error starting synth", error);
@@ -181,11 +182,14 @@ const maxSpeed = 0.25;
 
 let lastTime = 0;
 
-const offsetAmplitude = 0.08;
-const offsetSpeed = 40;
+const startOffsetAmplitude = 0.05;
+const startOffsetSpeed = 33;
+
+const endOffsetAmplitude = 0.08;
+const endOffsetSpeed = 40;
 function updateContent() {
 
-	if (!synthStarted) {
+	if (!started) {
 		return;
 	}
 
@@ -197,7 +201,12 @@ function updateContent() {
 
 	currentScore = moveTowards(currentScore, targetScore, maxDelta);
 
-	const videoProgress = clamp(currentScore + offsetAmplitude * (Math.sin(offsetSpeed * currentTime / 1000) - 1) / 2, 0, 1);
+
+	const startOffset = startOffsetAmplitude * (1 - Math.sin(startOffsetSpeed * currentTime / 1000)) / 2;
+
+	const endOffset = endOffsetAmplitude * (1 - Math.sin(endOffsetSpeed * currentTime / 1000)) / 2;
+
+	const videoProgress = clamp(currentScore, startOffset, 1 - endOffset);
 	flower.currentTime = videoProgress * flower.duration;
 
 	player.volume.value = Math.min(0, -60 + currentScore * 150);

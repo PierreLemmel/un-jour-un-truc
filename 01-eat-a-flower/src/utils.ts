@@ -21,3 +21,7 @@ export function quadraticInterpolation(a: number, min: number, max: number) {
 export function linearInterpolation(a: number, min: number, max: number) {
 	return min + (max - min) * a;
 }
+
+export function remap(value: number, [fromMin, fromMax]: [number, number], [toMin, toMax]: [number, number]) {
+	return toMin + (toMax - toMin) * (value - fromMin) / (fromMax - fromMin);
+}
