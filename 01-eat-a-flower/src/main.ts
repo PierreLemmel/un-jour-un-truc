@@ -1,12 +1,10 @@
 import './style.css';
 import { FaceLandmarker, FilesetResolver, type FaceLandmarkerResult } from "@mediapipe/tasks-vision";
-import { clamp, linearInterpolation, moveTowards, percentage, quadraticInterpolation, scoreCalculation } from './utils';
+import { clamp, moveTowards, percentage, quadraticInterpolation, scoreCalculation } from './utils';
 import * as Tone from "tone";
 
 
 const video = document.getElementById("webcam") as HTMLVideoElement;
-const listContainer = document.getElementById("expressions-list") as HTMLDivElement;
-const loader = document.getElementById("loader") as HTMLDivElement;
 
 let faceLandmarker: FaceLandmarker;
 let lastVideoTime = -1;
