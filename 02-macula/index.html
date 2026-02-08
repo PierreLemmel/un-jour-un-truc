@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Macula</title>
+		
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Pierre Lemmel - Un jour, un truc - Macula" />
+		
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<link rel="canonical" href="https://light-tunnel.plml.fr" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://light-tunnel.plml.fr" />
+		<meta property="og:title" content="Macula" />
+		<meta property="og:description" content="Pierre Lemmel - Un jour, un truc - Macula" />
+		<meta property="og:image" content="https://light-tunnel.plml.fr/plml-cover.jpg" />
+		<meta property="og:site_name" content="Pierre Lemmel - Un jour, un truc" />
+		<meta property="og:locale" content="en_US" />
+	</head>
+	<body>
+		<main id="app" class="bg-black w-screen h-screen relative flex flex-col items-center justify-center">
+			<div id="debug-info" class="absolute top-0 right-0 text-white bg-black/90 p-4 flex-col gap-1 z-20 text-sm">
+				<div id="width">WIDTH</div>
+				<div id="height">HEIGHT</div>
+			</div>
+			<div id="controls" class="absolute top-0 left-0 text-white bg-black/90 p-4 flex-col gap-2 z-20 text-sm">
+				<div class="flex flex-row gap-2">
+					<label for="speed">Speed</label>
+					<input type="range" id="slider-speed" min="-800" max="800" step="0.01" value="100" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="Width">Width</label>
+					<input type="range" id="slider-width" min="1" max="200" step="0.2" value="70" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="smooth-in">Smooth In</label>
+					<input type="range" id="slider-smooth-in" min="0" max="1" step="0.01" value="0" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="smooth-out">Smooth Out</label>
+					<input type="range" id="slider-smooth-out" min="0" max="1" step="0.01" value="0" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="segments">Segments</label>
+					<input type="range" id="slider-segments" min="3" max="20" step="1" value="4" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="offset-angle">Offset Angle</label>
+					<input type="range" id="slider-offset-angle" min="0" max="6.28318" step="0.01" value="0" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="balance">Balance</label>
+					<input type="range" id="slider-balance" min="0.05" max="0.95" step="0.01" value="0.5" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="fade-radius">Fade Radius</label>
+					<input type="range" id="slider-fade-radius" min="0.01" max="0.5" step="0.01" value="0.1" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="fade-strength">Fade Strength</label>
+					<input type="range" id="slider-fade-strength" min="0" max="1" step="0.01" value="0" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="color1">Color 1</label>
+					<input type="color" id="color-picker-1" value="#ff66ff" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="color2">Color 2</label>
+					<input type="color" id="color-picker-2" value="#0066ff" />
+				</div>
+				<button id="reset-button" class="mt-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Reset to Defaults</button>
+			</div>
+			<canvas id="canvas" class="w-full h-full"></canvas>
+		</main>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
