@@ -83,15 +83,15 @@ function vec4ToHex(vec4: [number, number, number, number]): string {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-    speed: 100,
-    width: 70,
-    smoothIn: 0,
+    speed: -350,
+    width: 200,
+    smoothIn: 1.0,
     smoothOut: 0,
-    segments: 4,
+    segments: 6,
     offsetAngle: 0,
-    balance: 0.5,
-    fadeRadius: 0.1,
-    fadeStrength: 0,
+    balance: 0.85,
+    fadeRadius: 0.3,
+    fadeStrength: 1,
     color1: '#ff66ff',
     color2: '#0066ff',
 };
