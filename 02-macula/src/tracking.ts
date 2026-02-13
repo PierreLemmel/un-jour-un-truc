@@ -1,5 +1,5 @@
 import { FaceLandmarker, FilesetResolver, type Matrix, type NormalizedLandmark } from "@mediapipe/tasks-vision";
-import { clamp, clamp01, createKalmanFilter, distance, inverseLerp, length, midPoint, remap, type KalmanFilterParams } from "./utils";
+import { clamp, clamp01, createKalmanFilter, distance, inverseLerp, midPoint, remap, type KalmanFilterParams } from "./utils";
 
 
 export interface TrackingResult {

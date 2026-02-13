@@ -2,7 +2,6 @@ import * as THREE from 'three';
 
 import baseVertexShader from './shaders/base.vert?raw';
 import tunnelFragmentShader from './shaders/tunnel.frag?raw';
-import testFragmentShader from './shaders/test.frag?raw';
 import noiseGlsl from './shaders/noise.glsl?raw';
 import utilsGlsl from './shaders/utils.glsl?raw';
 import shapesGlsl from './shaders/shapes.glsl?raw';
