@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import baseVertexShader from './shaders/base.vert?raw';
 import tunnelFragmentShader from './shaders/tunnel.frag?raw';
+import testFragmentShader from './shaders/test.frag?raw';
 import noiseGlsl from './shaders/noise.glsl?raw';
 import utilsGlsl from './shaders/utils.glsl?raw';
 import shapesGlsl from './shaders/shapes.glsl?raw';
@@ -48,6 +49,9 @@ export type TunnelUniforms = {
     uBalance: { value: number };
     uFadeRadius: { value: number };
     uFadeStrength: { value: number };
+    uBlinkLevel: { value: number };
+    uBlinkColor: { value: vec4 };
+    uBlinkMax: { value: number };
 }
 
 export type vec2 = [number, number];
@@ -69,6 +73,9 @@ const uniforms: TunnelUniforms = {
     uBalance: { value: 0.5 },
     uFadeRadius: { value: 0.1 },
     uFadeStrength: { value: 0 },
+    uBlinkLevel: { value: 0 },
+    uBlinkColor: { value: [1, 1, 1, 1] as vec4 },
+    uBlinkMax: { value: 0.88 },
 } satisfies ShaderUniforms;
 
 type ExtractUniformValues<T extends Record<keyof T, { value: any }>> = {
@@ -117,8 +124,4 @@ export function updateUniforms(updates: UpdateUniforms) {
             }
         }
     }
-}
-
-export function getUniforms() {
-    return Object.fromEntries(Object.entries(uniforms).map(([key, value]) => [key, value.value]));
 }

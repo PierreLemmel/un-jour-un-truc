@@ -20,11 +20,7 @@
 	</head>
 	<body>
 		<main id="app" class="bg-black w-screen h-screen relative flex flex-col items-center justify-center">
-			<div id="debug-info" class="absolute top-0 right-0 text-white bg-black/90 p-4 flex-col gap-1 z-20 text-sm">
-				<div id="width">WIDTH</div>
-				<div id="height">HEIGHT</div>
-			</div>
-			<div id="controls" class="absolute top-0 left-0 text-white bg-black/90 p-4 flex-col gap-2 z-20 text-sm">
+			<div id="controls" class="absolute top-0 left-0 text-white bg-black/90 p-4 flex-col gap-2 z-20 text-sm hidden">
 				<div class="flex flex-row gap-2">
 					<label for="speed">Speed</label>
 					<input type="range" id="slider-speed" min="-800" max="800" step="0.01" value="100" />
@@ -69,10 +65,49 @@
 					<label for="color2">Color 2</label>
 					<input type="color" id="color-picker-2" value="#0066ff" />
 				</div>
+				<div class="flex flex-row gap-2">
+					<label for="blink-level">Blink Level</label>
+					<input type="range" id="slider-blink-level" min="0" max="1" step="0.01" value="0" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="blink-color">Blink Color</label>
+					<input type="color" id="color-picker-blink" value="#ffffff" />
+				</div>
+				<div class="flex flex-row gap-2">
+					<label for="blink-max">Blink Max</label>
+					<input type="range" id="slider-blink-max" min="0" max="1" step="0.01" value="0.92" />
+				</div>
 				<button id="reset-button" class="mt-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Reset to Defaults</button>
+				<button id="save-settings-button" class="mt-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Save Settings</button>
+				<button id="show-calibration-button" class="mt-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Calibrate</button>
 			</div>
+			<div id="debug-panel" class="absolute top-0 right-0 text-white bg-black/90 p-4 flex-col gap-2 z-20 text-sm hidden">
+			</div>
+
+			<div id="calibration-panel" class="absolute inset-0 text-white bg-black z-50 text-sm hidden">
+				<div class="w-full h-full relative bg-gray-900 children:absolute">
+					<button id="calibrate-top-left" class="absolute top-1 left-1 size-8 bg-red-200 hover:bg-red-400 active:bg-red-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-top-right" class="absolute top-1 right-1 size-8 bg-red-200 hover:bg-red-400 active:bg-red-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-bottom-left" class="absolute bottom-1 left-1 size-8 bg-red-200 hover:bg-red-400 active:bg-red-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-bottom-right" class="absolute bottom-1 right-1 size-8 bg-red-200 hover:bg-red-400 active:bg-red-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-middle-top" class="absolute top-1 left-1/2 -translate-x-1/2 size-8 bg-blue-200 hover:bg-blue-400 active:bg-blue-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-middle-right" class="absolute right-1 top-1/2 -translate-y-1/2 size-8 bg-blue-200 hover:bg-blue-400 active:bg-blue-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-middle-bottom" class="absolute bottom-1 left-1/2 -translate-x-1/2 size-8 bg-blue-200 hover:bg-blue-400 active:bg-blue-600 rounded-full cursor-pointer"></button>
+					<button id="calibrate-middle-left" class="absolute left-1 top-1/2 -translate-y-1/2 size-8 bg-blue-200 hover:bg-blue-400 active:bg-blue-600 rounded-full cursor-pointer"></button>
+					<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-2">
+						<div class="text-center text-lg font-bold">Eyetracking Calibration</div>
+						<div class="text-center">Look at the four corners by just moving your eyes of the screen and click on them.</div>
+						<div class="text-center">Look at the middle of the screen by just moving your head and click on them.</div>
+						<div class="text-center">Set the height of your eyes by looking at the middle of the screen and clicking on the button.</div>
+						<button id="calibrate-eyes-height" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Set Eyes Height</button>
+						<button id="calibration-button-ok" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded">Ok</button>
+					</div>
+				</div>
+			</div>
+			<video id="webcam" autoplay playsinline class="absolute bottom-10 left-2 w-1/2 md:bottom-4 md:left-4 md:w-1/4 h-auto object-contain -scale-x-100 z-10 hidden"></video>
 			<canvas id="canvas" class="w-full h-full"></canvas>
 		</main>
+
 		<script type="module" src="/src/main.ts"></script>
 	</body>
 </html>

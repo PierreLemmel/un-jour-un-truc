@@ -25,6 +25,9 @@ uniform float uDepth;
 uniform float uFadeRadius;
 uniform float uFadeStrength;
 
+uniform float uBlinkLevel;
+uniform vec4 uBlinkColor;
+uniform float uBlinkMax;
 
 void main() {
 
@@ -54,11 +57,11 @@ void main() {
         length((vUv - uLeavingPoint) * uResolution) / max(uResolution.x, uResolution.y)
     );
 
-    float alpha = (1. - uFadeStrength * x);
+    float depthFade = (1. - uFadeStrength * x);
 
-    gl_FragColor = mix(
-        vec4(0., 0., 0., 1.),
-        mix(uColor1, uColor2, smoothCoord),
-        alpha
-    );
+    vec4 result = mix(uColor1, uColor2, smoothCoord);
+    result = mix(vec4(0., 0., 0., 1.), result, depthFade);
+    result = mix(result, uBlinkColor, uBlinkLevel * uBlinkMax);
+    
+    gl_FragColor = result;
 }
