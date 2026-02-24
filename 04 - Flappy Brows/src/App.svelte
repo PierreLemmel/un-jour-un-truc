@@ -188,17 +188,17 @@
             aria-label="Game Over"
         >
             <div class="text-white text-4xl md:text-6xl font-semibold tracking-tight">Flappy Brows</div>
-            <div class="text-white text-xl opacity-90">Levez les sourcils pour commencer une partie</div>
+            <div class="text-white text-xl opacity-90">Raise your eyebrows to start a game</div>
             {#if $score > 0}
-                <div class="text-white text-3xl font-semibold">Votre score : {Math.floor($score)}</div>
-                <div class="text-white text-xl opacity-90">Meilleur score : {$highscore}</div>
+                <div class="text-white text-3xl font-semibold">Your score: {Math.floor($score)}</div>
+                <div class="text-white text-xl opacity-90">Best score: {$highscore}</div>
             {/if}
             <button
                 class="px-8 py-4 text-lg bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors duration-100 cursor-pointer font-medium"
                 type="button"
                 on:click={restartGame}
             >
-                Rejouer
+                Play
             </button>
         </div>
     {/if}
@@ -212,7 +212,7 @@
                     "cursor-pointer"
                 )}
                 type="button"
-                aria-label={paused ? 'Reprendre' : 'Pause'}
+                aria-label={paused ? 'Resume' : 'Pause'}
                 on:click={togglePause}
             >
                 {#if paused}
