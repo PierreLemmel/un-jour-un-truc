@@ -33,5 +33,6 @@ self.onmessage = async (event) => {
     const { type } = event.data;
 
     if (type === 'frame') {
+        console.log("frame");
     }
 };

@@ -30,6 +30,27 @@
         resizeGraphics(width, height);
     }
 
+    let rvfcHandle: number | null = null;
+    async function sendFrameToTracking() {
+        rvfcHandle = webcamEl.requestVideoFrameCallback(sendFrameToTracking);
+
+        const image = await createImageBitmap(webcamEl);
+        visionWorker.postMessage(
+            {
+                type: 'frame',
+                image
+            },
+            [image]
+        );
+    }
+
+    let isFullyInitialized = false;
+    $: if (webcamStarted && visionStarted && !isFullyInitialized) {
+        isFullyInitialized = true;
+        sendFrameToTracking();
+    }
+
+
     onMount(async () => {
         setupGraphics(canvasEl);
         resize();
@@ -61,6 +82,13 @@
         resizeObserver?.disconnect();
         resizeObserver = null;
         disposeGraphics();
+
+        if (rvfcHandle !== null) {
+            webcamEl.cancelVideoFrameCallback(rvfcHandle);
+            rvfcHandle = null;
+        }
+
+        visionWorker.terminate();
     });
 </script>
 

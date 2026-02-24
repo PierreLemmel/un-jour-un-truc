@@ -111,12 +111,6 @@
 
         window.addEventListener('game-over', onGameOver);
 
-        window.addEventListener('keydown', (event) => {
-            if (event.key === ' ') {
-                jump();
-            }
-        }); 
-
         resizeObserver = new ResizeObserver(() => resize());
         resizeObserver.observe(containerEl);
     });
@@ -153,6 +147,8 @@
             webcamEl.cancelVideoFrameCallback(rvfcHandle);
             rvfcHandle = null;
         }
+
+        trackingWorker.terminate();
     });
 </script>
 
@@ -175,10 +171,10 @@
         <div class="absolute inset-0 flex flex-col gap-2 items-center justify-center pointer-events-none select-none">
             <div class="text-white text-4xl md:text-6xl font-semibold tracking-tight mb-4">Flappy Brows</div>
             <div class="text-white text-sm">
-                {trackingStarted ? 'Tracking initialisé' : 'En attente d\'initialisation du tracking...'}
+                {trackingStarted ? 'Tracking initialized' : 'Waiting for tracking initialization...'}
             </div>
             <div class="text-white text-sm">
-                {webcamStarted ? 'Webcam initialisée' : 'En attente d\'initialisation de la webcam...'}
+                {webcamStarted ? 'Webcam initialized' : 'Waiting for webcam initialization...'}
             </div>
         </div>
     {:else if gameOver}
@@ -193,13 +189,6 @@
                 <div class="text-white text-3xl font-semibold">Your score: {Math.floor($score)}</div>
                 <div class="text-white text-xl opacity-90">Best score: {$highscore}</div>
             {/if}
-            <button
-                class="px-8 py-4 text-lg bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors duration-100 cursor-pointer font-medium"
-                type="button"
-                on:click={restartGame}
-            >
-                Play
-            </button>
         </div>
     {/if}
 
