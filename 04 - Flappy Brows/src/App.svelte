@@ -181,9 +181,7 @@
                 {webcamStarted ? 'Webcam initialisée' : 'En attente d\'initialisation de la webcam...'}
             </div>
         </div>
-    {/if}
-
-    {#if gameOver}
+    {:else if gameOver}
         <div
             class="absolute inset-0 z-30 flex flex-col gap-6 items-center justify-center bg-black/70 backdrop-blur-sm"
             role="dialog"
