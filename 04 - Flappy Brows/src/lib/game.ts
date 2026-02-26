@@ -246,8 +246,6 @@ export function updateGame(): void {
         ctx.fillRect(itemX, r2y, itemW, itemH);
 
         if (item.x < -ITEM_SPAWN_MARGIN) {
-            // console.log('pushing item to remove', i);
-            // console.log('items', items);
             itemToRemove.push(i);
         }
         
@@ -255,8 +253,6 @@ export function updateGame(): void {
     }
 
     for (const index of itemToRemove) {
-        // console.log('items', items);
-        // console.log('removing item', index);
         items.splice(index, 1);
     }
 
