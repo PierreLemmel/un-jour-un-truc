@@ -226,6 +226,8 @@ export function updateGame(): void {
 
     const fgRgba = rgba(foregroundColor);
 
+    const itemToRemove: number[] = [];
+    let i = 0;
     for (const item of items) {
         item.x -= horizontalSpeed * difficultyMultiplier * deltaTime;
         const itemX = (item.x - item.width / 2) * width;
@@ -244,15 +246,27 @@ export function updateGame(): void {
         ctx.fillRect(itemX, r2y, itemW, itemH);
 
         if (item.x < -ITEM_SPAWN_MARGIN) {
-            items.splice(items.indexOf(item), 1);
+            // console.log('pushing item to remove', i);
+            // console.log('items', items);
+            itemToRemove.push(i);
         }
+        
+        i++;
     }
 
+    for (const index of itemToRemove) {
+        // console.log('items', items);
+        // console.log('removing item', index);
+        items.splice(index, 1);
+    }
+
+    const trailItemToRemove: number[] = [];
+    let j = 0;
     for (const trailItem of trailItems) {
         trailItem.x -= horizontalSpeed * difficultyMultiplier * deltaTime;
         trailItem.fade -= deltaTime / playerTrailFadeTime;
         if (trailItem.fade < 0) {
-            trailItems.splice(trailItems.indexOf(trailItem), 1);
+            trailItemToRemove.push(j);
         }
 
         ctx.globalAlpha = Math.max(0, trailItem.fade);
@@ -261,6 +275,10 @@ export function updateGame(): void {
         const trailSize = playerSize * inverseLerp(Math.max(0, trailItem.fade), 0.25, 1);
 
         ctx.fillRect(trailItem.x * width - trailSize / 2, trailItem.y * height - trailSize / 2, trailSize, trailSize);
+        j++;
+    }
+    for (const index of trailItemToRemove) {
+        trailItems.splice(index, 1);
     }
 
     ctx.globalAlpha = 1;

@@ -3,7 +3,8 @@
     import { settings } from './lib/settings';
     import { cn } from './lib/utils';
     import SettingsPanel from './components/SettingsPanel.svelte';
-    import { disposeGraphics, resizeGraphics, setupGraphics } from './lib/graphics';
+    import { disposeGraphics, type Point3, resizeGraphics, setupGraphics, updateGraphicsData, setCameraSize } from './lib/graphics';
+    import DebugPanel from './components/DebugPanel.svelte';
 
     let webcamEl: HTMLVideoElement;
 
@@ -50,6 +51,14 @@
         sendFrameToTracking();
     }
 
+    function onVisionResult(values: Point3[]) {
+        updateGraphicsData(values);
+        window.dispatchEvent(new CustomEvent('vision-frame'));
+    }
+
+    function onSkipFrame() {
+        window.dispatchEvent(new CustomEvent('skip-frame'));
+    }
 
     onMount(async () => {
         setupGraphics(canvasEl);
@@ -61,6 +70,7 @@
         webcamEl.muted = true;
 
         webcamEl.addEventListener('loadeddata', () => {
+            setCameraSize(webcamEl.videoWidth, webcamEl.videoHeight);
             webcamStarted = true;
         });
 
@@ -69,8 +79,17 @@
             { type: 'module' }
         );
         visionWorker.onmessage = (event) => {
-            if (event.data.type === 'vision-ready') {
-                visionStarted = true;
+            switch (event.data.type) {
+                case 'vision-ready':
+                    visionStarted = true;
+                    break;
+                case 'vision-result':
+                    const { values } = event.data;
+                    onVisionResult(values);
+                    break;
+                case 'skip-frame':
+                    onSkipFrame();
+                    break;
             }
         };
 
@@ -101,10 +120,10 @@
         <div class="absolute inset-0 flex flex-col gap-2 items-center justify-center pointer-events-none select-none">
             <div class="text-white text-4xl md:text-6xl font-semibold tracking-tight mb-4">Face Net</div>
             <div class="text-white text-sm">
-                {visionStarted ? 'Vision initialisée' : 'En attente d\'initialisation de la vision...'}
+                {visionStarted ? 'Vision initialized' : 'Waiting for vision initialization...'}
             </div>
             <div class="text-white text-sm">
-                {webcamStarted ? 'Caméra initialisée' : 'En attente d\'initialisation de la caméra...'}
+                {webcamStarted ? 'Webcam initialized' : 'Waiting for webcam initialization...'}
             </div>
         </div>
     {/if}
@@ -118,7 +137,7 @@
                     "cursor-pointer"
                 )}
                 type="button"
-                aria-label="Ouvrir les paramètres"
+                aria-label="Open settings"
                 on:click={() => (settingsOpen = true)}
             >
                 <svg viewBox="0 0 24 24" class="size-6 mx-auto" fill="none" stroke="currentColor" stroke-width="2">
@@ -144,4 +163,8 @@
             $settings.showWebcam ? 'z-10 opacity-100' : '-z-10 opacity-0'
         )}
     ></video>
+
+    {#if $settings.showDebug}
+        <DebugPanel />
+    {/if}
 </main>

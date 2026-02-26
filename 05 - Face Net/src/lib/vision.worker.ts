@@ -18,21 +18,69 @@ async function createLandmarker() {
             delegate: 'GPU',
         },
         runningMode: 'VIDEO',
+        outputFacialTransformationMatrixes: true,
     });
 
     return result;
 }
 
-await createLandmarker();
+const faceLandmarker = await createLandmarker();
 
 self.postMessage({
     type: 'vision-ready'
 });
 
+let isProcessing = false;
+
+
+function processFrame(image: ImageBitmap) {
+
+    const start = performance.now();
+
+    if (isProcessing) {
+        self.postMessage({
+            type: 'skip-frame',
+            timestamp: start
+        });
+        return;
+    }
+
+    isProcessing = true;
+
+    const result = faceLandmarker.detectForVideo(image, performance.now());
+    const landmarks = result?.faceLandmarks?.[0];
+    const faceTransformationMatrix = result?.facialTransformationMatrixes?.[0];
+    
+    isProcessing = false;
+    
+    if (!landmarks || !faceTransformationMatrix) return;
+
+    const data = faceTransformationMatrix.data;
+
+    const position = {
+        x: data[12],
+        y: data[13],
+        z: data[14],
+    }
+
+    const scale = {
+        x: Math.hypot(data[0], data[1], data[2]),
+        y: Math.hypot(data[4], data[5], data[6]),
+        z: Math.hypot(data[8], data[9], data[10]),
+    }
+
+    self.postMessage({
+        type: 'vision-result',
+        values: landmarks,
+        position,
+        scale
+    });
+}
+
 self.onmessage = async (event) => {
     const { type } = event.data;
 
     if (type === 'frame') {
-        console.log("frame");
+        processFrame(event.data.image);
     }
 };
