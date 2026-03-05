@@ -75,6 +75,16 @@
                 oninput={(v) => settings.update((s) => ({ ...s, faceProportion: v }))}
             />
 
+            <FloatField
+                label="Face offset"
+                min={SettingsRanges.faceOffset.min}
+                max={SettingsRanges.faceOffset.max}
+                value={$settings.faceOffset}
+                step={0.01}
+                decimals={2}
+                oninput={(v) => settings.update((s) => ({ ...s, faceOffset: v }))}
+            />
+
             <ColorField
                 label="Background color 1"
                 value={$settings.backgroundColor1}

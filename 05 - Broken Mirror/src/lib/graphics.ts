@@ -23,7 +23,10 @@ export type Point3 = {
 let positions: Point3[] = [];
 
 let faceBaseScale = new THREE.Vector3(1, 1, 1);
-let faceScale = 1;
+
+let gameWidth = 0;
+let gameHeight = 0;
+
 
 export function setCameraSize(cw: number, ch: number): void {
     const max = Math.max(cw, ch);
@@ -32,6 +35,8 @@ export function setCameraSize(cw: number, ch: number): void {
 
 export function updateFaceMeshPoints(data: Point3[]): void {
     
+    if (!(gameWidth > 0 && gameHeight > 0)) return;
+
     if (!faceMesh || !faceBoxHelper) return;
 
     if (data.length !== FACE_MESH_COUNT) {
@@ -39,7 +44,7 @@ export function updateFaceMeshPoints(data: Point3[]): void {
         return;
     }
 
-    const { mirrorCam } = get(settings);
+    const { mirrorCam, faceProportion, faceOffset } = get(settings);
     positions = data;
 
     const { geometry } = faceMesh;
@@ -65,6 +70,15 @@ export function updateFaceMeshPoints(data: Point3[]): void {
     } = geometry.boundingBox!.max;
 
 
+    const scaleX = (xMax - xMin) > 0 ? (gameWidth / Math.max(gameWidth, gameHeight)) * (faceProportion / 100) / (xMax - xMin) : 0;
+    const scaleY = (yMax - yMin) > 0 ? (gameHeight / Math.max(gameWidth, gameHeight)) * (faceProportion / 100) / (yMax - yMin) : 0;
+    const faceScale = Math.min(scaleX, scaleY);
+    
+    const xCenter = (xMax + xMin) / 2;
+    const yCenter = (yMax + yMin) / 2;
+
+    faceMesh.position.set(-xCenter * faceScale, -yCenter * faceScale + faceOffset, 0);
+
     faceMesh.scale.set(faceBaseScale.x * faceScale, faceBaseScale.y * faceScale, faceBaseScale.z * faceScale);
 }
 
@@ -86,7 +100,7 @@ function createPointsMesh(settings: Settings): THREE.Points {
             pointColor2: { value: new THREE.Vector3(pointColor2[0], pointColor2[1], pointColor2[2]) },
         },
         transparent: true,
-        depthWrite: false,
+        depthWrite: true,
     });
 
     return new THREE.Points(geometry, material);
@@ -150,7 +164,9 @@ function update() {
 }
 
 export function resizeGraphics(gw: number, gh: number): void {
-
+    gameWidth = gw;
+    gameHeight = gh;
+    
     const max = Math.max(gw, gh);
 
     const xScale = gw / max;

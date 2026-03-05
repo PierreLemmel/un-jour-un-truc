@@ -8,6 +8,7 @@ export type Settings = {
     pointSize: number;
     lineWidth: number;
     faceProportion: number;
+    faceOffset: number;
     backgroundColor1: vec4;
     backgroundColor2: vec4;
     pointColor1: vec4;
@@ -26,25 +27,67 @@ export const SettingsRanges: SettingsRangesMap = {
     pointSize: { min: 1, max: 20 },
     lineWidth: { min: 0.5, max: 10 },
     faceProportion: { min: 50, max: 100 },
+    faceOffset: { min: -0.05, max: 0.15 },
 } as const;
 
 const STORAGE_KEY = 'face-net-settings';
 
 const DEFAULT_SETTINGS: Settings = {
-    mirrorCam: true,
-    showWebcam: false,
-    showDebug: false,
-    pointSize: 4,
-    lineWidth: 2,
-    faceProportion: 90,
-    backgroundColor1: [0, 0, 0, 1],
-    backgroundColor2: [0.1, 0.1, 0.1, 1],
-    pointColor1: [1, 1, 1, 1],
-    pointColor2: [0.85, 0.85, 0.85, 1],
-    lineColor1: [1, 1, 1, 1],
-    lineColor2: [0.7, 0.7, 0.7, 1],
-    surfaceColor1: [0.2, 0.2, 0.2, 1],
-    surfaceColor2: [0.1, 0.1, 0.1, 1],
+    "mirrorCam": true,
+    "showWebcam": false,
+    "showDebug": false,
+    "pointSize": 7,
+    "lineWidth": 1.3,
+    "faceProportion": 100,
+    "faceOffset": 0.09,
+    "backgroundColor1": [
+        0,
+        0,
+        0,
+        1
+    ],
+    "backgroundColor2": [
+        0.1,
+        0.1,
+        0.1,
+        1
+    ],
+    "pointColor1": [
+        1,
+        1,
+        1,
+        1
+    ],
+    "pointColor2": [
+        1,
+        1,
+        1,
+        1
+    ],
+    "lineColor1": [
+        1,
+        1,
+        1,
+        1
+    ],
+    "lineColor2": [
+        0.7,
+        0.7,
+        0.7,
+        1
+    ],
+    "surfaceColor1": [
+        0.2,
+        0.2,
+        0.2,
+        1
+    ],
+    "surfaceColor2": [
+        0.1,
+        0.1,
+        0.1,
+        1
+    ]
 };
 
 function loadInitialSettings(): Settings {
