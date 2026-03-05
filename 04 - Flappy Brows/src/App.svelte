@@ -53,8 +53,10 @@
 
     const { jumpThreshold } = $settings;
 
+    let isProcessing = false;
     function onTrackingResult(value: number) {
 
+        isProcessing = false;
         if (!gameOver) {
             if (value > jumpThreshold) {
                 jump();
@@ -73,8 +75,8 @@
         }
     }
 
-    function onSkipFrame() {
-        window.dispatchEvent(new CustomEvent('skip-frame'));
+    function onNoResult() {
+        isProcessing = false;
     }
 
     onMount(async () => {
@@ -103,8 +105,8 @@
                     const { value } = event.data;
                     onTrackingResult(value);
                     break;
-                case 'skip-frame':
-                    onSkipFrame();
+                case 'no-result':
+                    onNoResult();
                     break;
             }
         };
@@ -121,6 +123,9 @@
     async function sendFrameToTracking() {
         rvfcHandle = webcamEl.requestVideoFrameCallback(sendFrameToTracking);
 
+        if (isProcessing) return;
+
+        isProcessing = true;
         const image = await createImageBitmap(webcamEl);
         trackingWorker.postMessage(
             {

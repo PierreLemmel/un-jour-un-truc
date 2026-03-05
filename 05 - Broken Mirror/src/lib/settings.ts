@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import type { vec4 } from './utils';
 
 export type Settings = {
+    mirrorCam: boolean;
     showWebcam: boolean;
     showDebug: boolean;
     pointSize: number;
@@ -30,6 +31,7 @@ export const SettingsRanges: SettingsRangesMap = {
 const STORAGE_KEY = 'face-net-settings';
 
 const DEFAULT_SETTINGS: Settings = {
+    mirrorCam: true,
     showWebcam: false,
     showDebug: false,
     pointSize: 4,

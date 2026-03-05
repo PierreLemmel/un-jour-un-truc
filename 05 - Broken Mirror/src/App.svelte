@@ -3,7 +3,7 @@
     import { settings } from './lib/settings';
     import { cn } from './lib/utils';
     import SettingsPanel from './components/SettingsPanel.svelte';
-    import { disposeGraphics, type Point3, resizeGraphics, setupGraphics, updateGraphicsData, setCameraSize } from './lib/graphics';
+    import { disposeGraphics, type Point3, resizeGraphics, setupGraphics, updateFaceMeshPoints, setCameraSize } from './lib/graphics';
     import DebugPanel from './components/DebugPanel.svelte';
 
     let webcamEl: HTMLVideoElement;
@@ -32,9 +32,13 @@
     }
 
     let rvfcHandle: number | null = null;
+    let isProcessing = false;
     async function sendFrameToTracking() {
         rvfcHandle = webcamEl.requestVideoFrameCallback(sendFrameToTracking);
 
+        if (isProcessing) return;
+
+        isProcessing = true;
         const image = await createImageBitmap(webcamEl);
         visionWorker.postMessage(
             {
@@ -52,12 +56,14 @@
     }
 
     function onVisionResult(values: Point3[]) {
-        updateGraphicsData(values);
+        isProcessing = false;
+        updateFaceMeshPoints(values);
         window.dispatchEvent(new CustomEvent('vision-frame'));
     }
 
-    function onSkipFrame() {
-        window.dispatchEvent(new CustomEvent('skip-frame'));
+    function onNoResult() {
+        isProcessing = false;
+        window.dispatchEvent(new CustomEvent('vision-frame'));
     }
 
     onMount(async () => {
@@ -87,8 +93,8 @@
                     const { values } = event.data;
                     onVisionResult(values);
                     break;
-                case 'skip-frame':
-                    onSkipFrame();
+                case 'no-result':
+                    onNoResult();
                     break;
             }
         };
@@ -159,7 +165,8 @@
         autoplay
         playsinline
         class={cn(
-            "absolute bottom-4 left-4 w-1/4 h-auto object-contain -scale-x-100",
+            "absolute bottom-4 left-4 w-1/4 h-auto object-contain",
+            $settings.mirrorCam ? '-scale-x-100' : 'scale-x-100',
             $settings.showWebcam ? 'z-10 opacity-100' : '-z-10 opacity-0'
         )}
     ></video>

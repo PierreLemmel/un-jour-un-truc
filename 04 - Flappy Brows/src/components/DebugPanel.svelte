@@ -3,11 +3,9 @@
 
     let browScore = 0;
     
-    let skipPerSecond = 0;
     let trackingFps = 0;
     let gameFps = 0;
 
-    let skipFrameCounter = 0;
     let trackingFrameCounter = 0;
     let gameFrameCounter = 0;
 
@@ -23,13 +21,7 @@
         gameFrameCounter++;
     });
 
-    window.addEventListener('skip-frame', () => {
-        skipFrameCounter++;
-    });
-
     setInterval(() => {
-        skipPerSecond = skipFrameCounter;
-        skipFrameCounter = 0;
         trackingFps = trackingFrameCounter;
         trackingFrameCounter = 0;
         gameFps = gameFrameCounter;
@@ -43,7 +35,6 @@
     "w-1/4"
 )}>
     <div>Brow Score: {percentage(browScore)}</div>
-    <div>Skip per second: {skipPerSecond}</div>
     <div>Tracking FPS: {trackingFps}</div>
     <div>Game FPS: {gameFps}</div>
 </div>

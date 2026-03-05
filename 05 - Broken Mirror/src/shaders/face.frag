@@ -6,5 +6,5 @@ void main() {
     float dist = length(center) * 2.0;
     float alpha = 1.0 - smoothstep(0.5, 1.0, dist);
     vec3 color = mix(pointColor2, pointColor1, alpha);
-    gl_FragColor = vec4(color, alpha);
+    gl_FragColor = vec4(color + vec3(1, 0, 1), 1);
 }

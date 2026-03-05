@@ -10,12 +10,12 @@
 
 {#if open}
     <div
-        class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm"
+        class="absolute right-0 top-0 bottom-0 w-1/2 z-50 flex flex-col bg-black/50 backdrop-blur-sm"
         role="dialog"
         aria-label="Settings"
     >
-        <div class="w-full max-h-[90vh] overflow-y-auto p-6 grid grid-cols-2 gap-6 text-white">
-            <div class="col-span-2 flex items-center justify-between mb-6">
+        <div class="flex-1 overflow-y-auto p-6 grid grid-cols-1 gap-6 text-white">
+            <div class="flex items-center justify-between mb-6">
                 <div class="text-4xl font-semibold">Settings</div>
                 <button
                     class="size-11 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors duration-100 cursor-pointer"
@@ -39,6 +39,12 @@
                 label="Show debug"
                 checked={$settings.showDebug}
                 onchange={(v) => settings.update((s) => ({ ...s, showDebug: v }))}
+            />
+            
+            <BooleanField
+                label="Mirror cam"
+                checked={$settings.mirrorCam}
+                onchange={(v) => settings.update((s) => ({ ...s, mirrorCam: v }))}
             />
 
             <FloatField
@@ -118,7 +124,7 @@
             />
 
             <button
-                class="col-span-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors duration-100 cursor-pointer"
+                class="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors duration-100 cursor-pointer"
                 type="button"
                 on:click={() => console.log(JSON.stringify($settings, null, 4))}
             >

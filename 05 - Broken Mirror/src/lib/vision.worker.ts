@@ -30,30 +30,21 @@ self.postMessage({
     type: 'vision-ready'
 });
 
-let isProcessing = false;
-
 
 function processFrame(image: ImageBitmap) {
 
     const start = performance.now();
 
-    if (isProcessing) {
-        self.postMessage({
-            type: 'skip-frame',
-            timestamp: start
-        });
-        return;
-    }
-
-    isProcessing = true;
-
     const result = faceLandmarker.detectForVideo(image, performance.now());
     const landmarks = result?.faceLandmarks?.[0];
     const faceTransformationMatrix = result?.facialTransformationMatrixes?.[0];
     
-    isProcessing = false;
-    
-    if (!landmarks || !faceTransformationMatrix) return;
+    if (!landmarks || !faceTransformationMatrix) {
+        self.postMessage({
+            type: 'no-result',
+        });
+        return;
+    } 
 
     const data = faceTransformationMatrix.data;
 

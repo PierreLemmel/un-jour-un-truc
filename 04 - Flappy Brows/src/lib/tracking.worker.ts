@@ -40,27 +40,12 @@ self.postMessage({
     type: 'tracking-ready'
 });
 
-let isProcessing = false;
 
 function processFrame(image: ImageBitmap) {
 
-    const start = performance.now();
-
-    if (isProcessing) {
-        self.postMessage({
-            type: 'skip-frame',
-            timestamp: start
-        });
-        return;
-    }
-
-    isProcessing = true;
-
     const result = faceLandmarker.detectForVideo(image, performance.now());
     const blendshapes = result?.faceBlendshapes?.[0];
-    
-    isProcessing = false;
-    
+
     if (!blendshapes) return;
     
     const browInnerUp = blendshapes.categories[3].score;
