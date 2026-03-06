@@ -1,13 +1,53 @@
 import * as THREE from 'three';
 import { get } from 'svelte/store';
 import { settings, type Settings } from './settings';
-import vertexShader from '../shaders/face.vert?raw';
-import fragmentShader from '../shaders/face.frag?raw';
+import { FACE_LANDMARKS_CONTOURS } from './faceConnections';
+
+import pointsVertexShader from '../shaders/face-point.vert.glsl';
+import pointsFragmentShader from '../shaders/face-point.frag.glsl';
+import lineVertexShader from '../shaders/face-line.vert.glsl';
+import lineFragmentShader from '../shaders/face-line.frag.glsl';
+
+
+let settingsUnsubscribe: (() => void) | null = null;
+
+function applySettingsToUniforms(s: Settings): void {
+    if (!faceMesh || !faceLineMesh || !faceBoxHelper || !renderer) return;
+
+    const {
+        pointSize,
+        pointColor1,
+        pointColor2,
+        pointSizeNoiseSpeed,
+        pointSizeNoiseScale,
+        pointColorNoiseSpeed,
+        pointColorNoiseScale,
+        lineColor1,
+        backgroundColor1
+    } = s;
+    const faceMat = faceMesh.material as THREE.ShaderMaterial;
+    faceMat.uniforms.pointSize.value = pointSize;
+    faceMat.uniforms.pointColor1.value.set(pointColor1[0], pointColor1[1], pointColor1[2]);
+    faceMat.uniforms.pointColor2.value.set(pointColor2[0], pointColor2[1], pointColor2[2]);
+    faceMat.uniforms.pointSizeNoiseSpeed.value = pointSizeNoiseSpeed;
+    faceMat.uniforms.pointSizeNoiseScale.value = pointSizeNoiseScale;
+    faceMat.uniforms.pointColorNoiseSpeed.value = pointColorNoiseSpeed;
+    faceMat.uniforms.pointColorNoiseScale.value = pointColorNoiseScale;
+
+    const lineMat = faceLineMesh.material as THREE.ShaderMaterial;
+    lineMat.uniforms.lineColor.value.set(lineColor1[0], lineColor1[1], lineColor1[2]);
+
+    renderer.setClearColor(
+        new THREE.Color(backgroundColor1[0], backgroundColor1[1], backgroundColor1[2])
+    );
+    faceBoxHelper.visible = s.showDebug;
+}
 
 let renderer: THREE.WebGLRenderer | null = null;
 let scene: THREE.Scene | null = null;
 let camera: THREE.OrthographicCamera | null = null;
 let faceMesh: THREE.Points | null = null;
+let faceLineMesh: THREE.LineSegments | null = null;
 let faceBoxHelper: THREE.BoxHelper | null = null;
 let animationFrameId: number | null = null;
 let setup = false;
@@ -27,7 +67,6 @@ let faceBaseScale = new THREE.Vector3(1, 1, 1);
 let gameWidth = 0;
 let gameHeight = 0;
 
-
 export function setCameraSize(cw: number, ch: number): void {
     const max = Math.max(cw, ch);
     faceBaseScale.set(cw / max, ch / max, 1);
@@ -37,7 +76,7 @@ export function updateFaceMeshPoints(data: Point3[]): void {
     
     if (!(gameWidth > 0 && gameHeight > 0)) return;
 
-    if (!faceMesh || !faceBoxHelper) return;
+    if (!faceMesh || !faceLineMesh || !faceBoxHelper) return;
 
     if (data.length !== FACE_MESH_COUNT) {
         console.error(`Received data length does not match FACE_MESH_COUNT (${data.length} !== ${FACE_MESH_COUNT})`);
@@ -47,8 +86,8 @@ export function updateFaceMeshPoints(data: Point3[]): void {
     const { mirrorCam, faceProportion, faceOffset } = get(settings);
     positions = data;
 
-    const { geometry } = faceMesh;
-    const posAttr = geometry.getAttribute('position') as THREE.BufferAttribute;
+    const pointsGeometry = faceMesh.geometry;
+    const posAttr = pointsGeometry.getAttribute('position') as THREE.BufferAttribute;
     
     for (let i = 0; i < positions.length; i++) {
         posAttr.array[i * 3] = (mirrorCam ? 1 - positions[i].x : positions[i].x) - 0.5;
@@ -57,17 +96,17 @@ export function updateFaceMeshPoints(data: Point3[]): void {
     }
     posAttr.needsUpdate = true;
 
-    geometry.computeBoundingBox();
+    pointsGeometry.computeBoundingBox();
     faceBoxHelper.update();
 
     const {
         x: xMin,
         y: yMin,
-    } = geometry.boundingBox!.min;
+    } = pointsGeometry.boundingBox!.min;
     const {
         x: xMax,
         y: yMax,
-    } = geometry.boundingBox!.max;
+    } = pointsGeometry.boundingBox!.max;
 
 
     const scaleX = (xMax - xMin) > 0 ? (gameWidth / Math.max(gameWidth, gameHeight)) * (faceProportion / 100) / (xMax - xMin) : 0;
@@ -78,32 +117,64 @@ export function updateFaceMeshPoints(data: Point3[]): void {
     const yCenter = (yMax + yMin) / 2;
 
     faceMesh.position.set(-xCenter * faceScale, -yCenter * faceScale + faceOffset, 0);
+    faceLineMesh.position.copy(faceMesh.position);
+    faceLineMesh.scale.copy(faceMesh.scale);
 
-    faceMesh.scale.set(faceBaseScale.x * faceScale, faceBaseScale.y * faceScale, faceBaseScale.z * faceScale);
+    faceMesh.scale.set(faceBaseScale.x * faceScale, faceBaseScale.y * faceScale, 1);
+    faceLineMesh.scale.copy(faceMesh.scale);
 }
 
-
-function createPointsMesh(settings: Settings): THREE.Points {
-    const geometry = new THREE.BufferGeometry();
+function createFaceGeometries(): { pointsGeometry: THREE.BufferGeometry; lineGeometry: THREE.BufferGeometry } {
     const positionArray = new Float32Array(FACE_MESH_COUNT * 3);
+    const posAttr = new THREE.BufferAttribute(positionArray, 3);
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3));
+    const pointsGeometry = new THREE.BufferGeometry();
+    pointsGeometry.setAttribute('position', posAttr);
 
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute('position', posAttr);
+    const indexArray = new Uint16Array(FACE_LANDMARKS_CONTOURS.length * 2);
+    for (let i = 0; i < FACE_LANDMARKS_CONTOURS.length; i++) {
+        indexArray[i * 2] = FACE_LANDMARKS_CONTOURS[i][0];
+        indexArray[i * 2 + 1] = FACE_LANDMARKS_CONTOURS[i][1];
+    }
+    lineGeometry.setIndex(new THREE.BufferAttribute(indexArray, 1));
 
-    const { pointSize, pointColor1, pointColor2 } = settings;
+    return { pointsGeometry, lineGeometry };
+}
+
+function createPointsMesh(geometry: THREE.BufferGeometry, settings: Settings): THREE.Points {
+    const { pointSize, pointColor1, pointColor2, pointSizeNoiseSpeed, pointSizeNoiseScale, pointColorNoiseSpeed, pointColorNoiseScale } = settings;
     const material = new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
+        vertexShader: pointsVertexShader,
+        fragmentShader: pointsFragmentShader,
         uniforms: {
             pointSize: { value: pointSize },
             pointColor1: { value: new THREE.Vector3(pointColor1[0], pointColor1[1], pointColor1[2]) },
             pointColor2: { value: new THREE.Vector3(pointColor2[0], pointColor2[1], pointColor2[2]) },
+            pointSizeNoiseSpeed: { value: pointSizeNoiseSpeed },
+            pointSizeNoiseScale: { value: pointSizeNoiseScale },
+            pointColorNoiseSpeed: { value: pointColorNoiseSpeed },
+            pointColorNoiseScale: { value: pointColorNoiseScale },
+            time: { value: 0 },
         },
-        transparent: true,
-        depthWrite: true,
+        transparent: true
     });
 
     return new THREE.Points(geometry, material);
+}
+
+function createLineMesh(geometry: THREE.BufferGeometry, settings: Settings): THREE.LineSegments {
+    const { lineColor1 } = settings;
+    const material = new THREE.ShaderMaterial({
+        vertexShader: lineVertexShader,
+        fragmentShader: lineFragmentShader,
+        uniforms: {
+            lineColor: { value: new THREE.Vector3(lineColor1[0], lineColor1[1], lineColor1[2]) },
+            time: { value: 0 }
+        }
+    });
+    return new THREE.LineSegments(geometry, material);
 }
 
 export function setupGraphics(canvas: HTMLCanvasElement): void {
@@ -116,13 +187,21 @@ export function setupGraphics(canvas: HTMLCanvasElement): void {
     camera = new THREE.OrthographicCamera(0, 1, 0, 1, -20, 20);
     camera.position.set(0, 0, 10);
 
-    faceMesh = createPointsMesh(get(settings));
+    const { pointsGeometry, lineGeometry } = createFaceGeometries();
+    faceMesh = createPointsMesh(pointsGeometry, get(settings));
     faceMesh.position.set(0, 0, 0);
     scene.add(faceMesh);
+
+    faceLineMesh = createLineMesh(lineGeometry, get(settings));
+    faceLineMesh.position.set(0, 0, 0);
+    scene.add(faceLineMesh);
 
     faceBoxHelper = new THREE.BoxHelper(faceMesh, 0xff00ff);
     faceBoxHelper.visible = true;
     scene.add(faceBoxHelper);
+
+    settingsUnsubscribe = settings.subscribe((s) => applySettingsToUniforms(s));
+    applySettingsToUniforms(get(settings));
 
     setup = true;
 
@@ -137,28 +216,13 @@ export function setupGraphics(canvas: HTMLCanvasElement): void {
 
 
 function update() {
-    if (!renderer || !scene || !camera ||  !faceMesh || !faceBoxHelper) {
+    if (!renderer || !scene || !camera || !faceMesh || !faceLineMesh || !faceBoxHelper) {
         return;
     }
 
-    const {
-        pointSize,
-        pointColor1,
-        pointColor2,
-        backgroundColor1,
-        showDebug
-    } = get(settings);
-
-    const faceMat = faceMesh.material as THREE.ShaderMaterial;
-    faceMat.uniforms.pointSize.value = pointSize;
-    faceMat.uniforms.pointColor1.value.set(pointColor1[0], pointColor1[1], pointColor1[2]);
-    faceMat.uniforms.pointColor2.value.set(pointColor2[0], pointColor2[1], pointColor2[2]);
-
-    renderer.setClearColor(
-        new THREE.Color(backgroundColor1[0], backgroundColor1[1], backgroundColor1[2])
-    );
-
-    faceBoxHelper.visible = showDebug;
+    const t = performance.now() / 1000;
+    (faceMesh.material as THREE.ShaderMaterial).uniforms.time.value = t;
+    (faceLineMesh.material as THREE.ShaderMaterial).uniforms.time.value = t;
 
     renderer.render(scene, camera);
 }
@@ -166,7 +230,7 @@ function update() {
 export function resizeGraphics(gw: number, gh: number): void {
     gameWidth = gw;
     gameHeight = gh;
-    
+
     const max = Math.max(gw, gh);
 
     const xScale = gw / max;
@@ -183,6 +247,8 @@ export function resizeGraphics(gw: number, gh: number): void {
 }
 
 export function disposeGraphics(): void {
+    settingsUnsubscribe?.();
+    settingsUnsubscribe = null;
     if (animationFrameId !== null) {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
@@ -191,6 +257,11 @@ export function disposeGraphics(): void {
         faceMesh.geometry.dispose();
         (faceMesh.material as THREE.Material).dispose();
         faceMesh = null;
+    }
+    if (faceLineMesh) {
+        faceLineMesh.geometry.dispose();
+        (faceLineMesh.material as THREE.Material).dispose();
+        faceLineMesh = null;
     }
     scene = null;
     camera = null;

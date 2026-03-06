@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-declare module '*.glsl?raw' {
+declare module '*.glsl' {
     const content: string;
     export default content;
 }

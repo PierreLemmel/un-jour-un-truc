@@ -9,6 +9,10 @@ export type Settings = {
     lineWidth: number;
     faceProportion: number;
     faceOffset: number;
+    pointSizeNoiseSpeed: number;
+    pointSizeNoiseScale: number;
+    pointColorNoiseSpeed: number;
+    pointColorNoiseScale: number;
     backgroundColor1: vec4;
     backgroundColor2: vec4;
     pointColor1: vec4;
@@ -28,18 +32,26 @@ export const SettingsRanges: SettingsRangesMap = {
     lineWidth: { min: 0.5, max: 10 },
     faceProportion: { min: 50, max: 100 },
     faceOffset: { min: -0.05, max: 0.15 },
+    pointSizeNoiseSpeed: { min: 0, max: 10 },
+    pointSizeNoiseScale: { min: 5, max: 30 },
+    pointColorNoiseSpeed: { min: 0, max: 10 },
+    pointColorNoiseScale: { min: 5, max: 30 },
 } as const;
 
 const STORAGE_KEY = 'face-net-settings';
 
 const DEFAULT_SETTINGS: Settings = {
     "mirrorCam": true,
-    "showWebcam": false,
+    "showWebcam": true,
     "showDebug": false,
-    "pointSize": 7,
-    "lineWidth": 1.3,
+    "pointSize": 11,
+    "lineWidth": 0.5,
     "faceProportion": 100,
-    "faceOffset": 0.09,
+    "faceOffset": 0.02,
+    "pointSizeNoiseSpeed": 1.5,
+    "pointSizeNoiseScale": 30,
+    "pointColorNoiseSpeed": 1,
+    "pointColorNoiseScale": 19.5,
     "backgroundColor1": [
         0,
         0,
@@ -59,15 +71,15 @@ const DEFAULT_SETTINGS: Settings = {
         1
     ],
     "pointColor2": [
-        1,
-        1,
+        0,
+        0.2980392156862745,
         1,
         1
     ],
     "lineColor1": [
         1,
-        1,
-        1,
+        0,
+        0,
         1
     ],
     "lineColor2": [
@@ -87,7 +99,7 @@ const DEFAULT_SETTINGS: Settings = {
         0.1,
         0.1,
         1
-    ]
+    ],
 };
 
 function loadInitialSettings(): Settings {

@@ -10,7 +10,7 @@
 
 {#if open}
     <div
-        class="absolute right-0 top-0 bottom-0 w-1/2 z-50 flex flex-col bg-black/50 backdrop-blur-sm"
+        class="absolute right-0 top-0 bottom-0 w-1/4 z-50 flex flex-col bg-black/50 backdrop-blur-sm"
         role="dialog"
         aria-label="Settings"
     >
@@ -83,6 +83,46 @@
                 step={0.01}
                 decimals={2}
                 oninput={(v) => settings.update((s) => ({ ...s, faceOffset: v }))}
+            />
+
+            <FloatField
+                label="Point size noise speed"
+                min={SettingsRanges.pointSizeNoiseSpeed.min}
+                max={SettingsRanges.pointSizeNoiseSpeed.max}
+                value={$settings.pointSizeNoiseSpeed}
+                step={0.5}
+                decimals={1}
+                oninput={(v) => settings.update((s) => ({ ...s, pointSizeNoiseSpeed: v }))}
+            />
+
+            <FloatField
+                label="Point size noise scale"
+                min={SettingsRanges.pointSizeNoiseScale.min}
+                max={SettingsRanges.pointSizeNoiseScale.max}
+                value={$settings.pointSizeNoiseScale}
+                step={0.5}
+                decimals={1}
+                oninput={(v) => settings.update((s) => ({ ...s, pointSizeNoiseScale: v }))}
+            />
+
+            <FloatField
+                label="Point color noise speed"
+                min={SettingsRanges.pointColorNoiseSpeed.min}
+                max={SettingsRanges.pointColorNoiseSpeed.max}
+                value={$settings.pointColorNoiseSpeed}
+                step={0.5}
+                decimals={1}
+                oninput={(v) => settings.update((s) => ({ ...s, pointColorNoiseSpeed: v }))}
+            />
+
+            <FloatField
+                label="Point color noise scale"
+                min={SettingsRanges.pointColorNoiseScale.min}
+                max={SettingsRanges.pointColorNoiseScale.max}
+                value={$settings.pointColorNoiseScale}
+                step={0.5}
+                decimals={1}
+                oninput={(v) => settings.update((s) => ({ ...s, pointColorNoiseScale: v }))}
             />
 
             <ColorField
