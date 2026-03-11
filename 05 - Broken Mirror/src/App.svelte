@@ -5,6 +5,7 @@
     import SettingsPanel from './components/SettingsPanel.svelte';
     import { disposeGraphics, type Point3, resizeGraphics, setupGraphics, updateFaceMeshPoints, setCameraSize } from './lib/graphics';
     import DebugPanel from './components/DebugPanel.svelte';
+    import { startTriangle, startQuad } from './lib/devTools';
 
     let webcamEl: HTMLVideoElement;
 
@@ -14,6 +15,7 @@
     let webcamStarted = false;
 
     let settingsOpen = false;
+    let paused = false;
 
     $: showSettings = import.meta.env.VITE_SHOW_SETTINGS === 'true';
 
@@ -35,18 +37,25 @@
     let isProcessing = false;
     async function sendFrameToTracking() {
         rvfcHandle = webcamEl.requestVideoFrameCallback(sendFrameToTracking);
+        
+        if (paused) return;
 
         if (isProcessing) return;
 
         isProcessing = true;
-        const image = await createImageBitmap(webcamEl);
-        visionWorker.postMessage(
-            {
-                type: 'frame',
-                image
-            },
-            [image]
-        );
+        try {
+            const image = await createImageBitmap(webcamEl);
+            visionWorker.postMessage(
+                {
+                    type: 'frame',
+                    image
+                },
+                [image]
+            );
+        }
+        catch (error) {
+            console.error(error);
+        }
     }
 
     let isFullyInitialized = false;
@@ -67,6 +76,27 @@
     }
 
     onMount(async () => {
+
+        window.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case ' ':
+                    paused = !paused;
+                    break;
+                case 's':
+                    settingsOpen = !settingsOpen;
+                    break;
+                case 'd':
+                    $settings.showDebug = !$settings.showDebug;
+                    break;
+                case 't':
+                    startTriangle();
+                    break;
+                case 'q':
+                    startQuad();
+                    break;
+            }
+
+        });
         setupGraphics(canvasEl);
         resize();
 
@@ -104,6 +134,7 @@
     });
 
     onDestroy(() => {
+
         resizeObserver?.disconnect();
         resizeObserver = null;
         disposeGraphics();
@@ -134,8 +165,32 @@
         </div>
     {/if}
 
-    {#if showSettings}
-        <div class="absolute bottom-4 right-4 z-40 flex gap-2 opacity-0 hover:opacity-100 transition-opacity">
+    <div class="absolute bottom-4 right-4 z-40 flex gap-2 opacity-0 hover:opacity-100 transition-opacity">
+        <button
+            class={cn(
+                "size-11 rounded-full cursor-pointer",
+                paused ? "bg-amber-500/80 hover:bg-amber-500 text-white" : "bg-white/10 hover:bg-white/15 text-white"
+            )}
+            type="button"
+            aria-label={paused ? "Resume tracking" : "Pause tracking"}
+            on:click={() => {
+                paused = !paused;
+                if (!paused && webcamEl && visionStarted && webcamStarted) {
+                    sendFrameToTracking();
+                }
+            }}
+        >
+            {#if paused}
+                <svg viewBox="0 0 24 24" class="size-6 mx-auto" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+            {:else}
+                <svg viewBox="0 0 24 24" class="size-6 mx-auto" fill="currentColor">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+            {/if}
+        </button>
+        {#if showSettings}
             <button
                 class={cn(
                     "size-11 rounded-full",
@@ -155,8 +210,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
             </button>
-        </div>
-    {/if}
+        {/if}
+    </div>
 
     <SettingsPanel open={settingsOpen} onClose={() => (settingsOpen = false)} />
 

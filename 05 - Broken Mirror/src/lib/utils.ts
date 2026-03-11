@@ -1,23 +1,22 @@
+import * as THREE from 'three';
+
 export function cn(...classes: string[]): string {
     return classes.filter(Boolean).join(' ');
 }
 
-export type vec4 = [number, number, number, number];
-
-export function vec4ToHex(v: vec4): string {
-    const r = Math.round(v[0] * 255).toString(16).padStart(2, '0');
-    const g = Math.round(v[1] * 255).toString(16).padStart(2, '0');
-    const b = Math.round(v[2] * 255).toString(16).padStart(2, '0');
+export function vector3ToHex(v: THREE.Vector3): string {
+    const r = Math.round(v.x * 255).toString(16).padStart(2, '0');
+    const g = Math.round(v.y * 255).toString(16).padStart(2, '0');
+    const b = Math.round(v.z * 255).toString(16).padStart(2, '0');
     return `#${r}${g}${b}`;
 }
 
-export function hexToVec4(hex: string): vec4 {
-    return [
+export function hexToVector3(hex: string): THREE.Vector3 {
+    return new THREE.Vector3(
         parseInt(hex.slice(1, 3), 16) / 255,
         parseInt(hex.slice(3, 5), 16) / 255,
-        parseInt(hex.slice(5, 7), 16) / 255,
-        hex.length === 9 ? parseInt(hex.slice(7, 9), 16) / 255 : 1,
-    ];
+        parseInt(hex.slice(5, 7), 16) / 255
+    );
 }
 
 export function clamp(value: number, min: number, max: number) {

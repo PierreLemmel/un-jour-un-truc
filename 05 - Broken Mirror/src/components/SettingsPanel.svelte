@@ -47,6 +47,54 @@
                 onchange={(v) => settings.update((s) => ({ ...s, mirrorCam: v }))}
             />
 
+            <BooleanField
+                label="Show mesh"
+                checked={$settings.showMesh}
+                onchange={(v) => settings.update((s) => ({ ...s, showMesh: v }))}
+            />
+
+            <BooleanField
+                label="Show points"
+                checked={$settings.showPoints}
+                onchange={(v) => settings.update((s) => ({ ...s, showPoints: v }))}
+            />
+
+            <BooleanField
+                label="Show face lines"
+                checked={$settings.showFaceLines}
+                onchange={(v) => settings.update((s) => ({ ...s, showFaceLines: v }))}
+            />
+
+            <FloatField
+                label="Face mesh master"
+                min={SettingsRanges.faceMeshMaster.min}
+                max={SettingsRanges.faceMeshMaster.max}
+                value={$settings.faceMeshMaster}
+                step={0.05}
+                decimals={2}
+                oninput={(v) => settings.update((s) => ({ ...s, faceMeshMaster: v }))}
+            />
+
+            <FloatField
+                label="Face lines master"
+                min={SettingsRanges.faceLinesMaster.min}
+                max={SettingsRanges.faceLinesMaster.max}
+                value={$settings.faceLinesMaster}
+                step={0.05}
+                decimals={2}
+                oninput={(v) => settings.update((s) => ({ ...s, faceLinesMaster: v }))}
+            />
+
+            <FloatField
+                label="Face points master"
+                min={SettingsRanges.facePointsMaster.min}
+                max={SettingsRanges.facePointsMaster.max}
+                value={$settings.facePointsMaster}
+                step={0.05}
+                decimals={2}
+                oninput={(v) => settings.update((s) => ({ ...s, facePointsMaster: v }))}
+            />
+
             <FloatField
                 label="Point size"
                 min={SettingsRanges.pointSize.min}

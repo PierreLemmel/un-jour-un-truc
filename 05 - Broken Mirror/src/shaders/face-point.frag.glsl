@@ -2,6 +2,7 @@ uniform vec3 pointColor1;
 uniform vec3 pointColor2;
 uniform float pointSize;
 uniform float time;
+uniform float master;
 
 varying float vColorNoise;
 
@@ -14,7 +15,7 @@ void main() {
     vec3 color = mix(pointColor1, pointColor2, vColorNoise);
 
     if (dist < SQRT_2_OVER_2) {
-        gl_FragColor = vec4(color, 1);
+        gl_FragColor = vec4(color, master);
     } else {
         discard;
     }

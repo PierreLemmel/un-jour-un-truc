@@ -1,13 +1,14 @@
 <script lang="ts">
     import { cn } from '../lib/utils';
     
-    let skipPerSecond = 0;
     let visionFps = 0;
     let renderFps = 0;
 
     let visionFrameCounter = 0;
     let renderFrameCounter = 0;
 
+    let pointHoverIndex: number | null = null;
+    let zoomValue: number = 1;
     
     window.addEventListener('vision-frame', () => {
         visionFrameCounter++;
@@ -15,6 +16,16 @@
 
     window.addEventListener('render-frame', () => {
         renderFrameCounter++;
+    });
+
+    window.addEventListener('point-hover', (e) => {
+        const { index } = (e as CustomEvent<{ index: number }>).detail;
+        pointHoverIndex = index;
+    });
+
+    window.addEventListener('zoom-changed', (e) => {
+        const { zoom } = (e as CustomEvent<{ zoom: number }>).detail;
+        zoomValue = zoom;
     });
 
     setInterval(() => {
@@ -32,4 +43,6 @@
 )}>
     <div>Vision FPS: {visionFps}</div>
     <div>Render FPS: {renderFps}</div>
+    <div>Point Hover Index: {pointHoverIndex ?? 'None'}</div>
+    <div>Zoom: {zoomValue.toFixed(2)}</div>
 </div>
