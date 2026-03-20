@@ -1,0 +1,39 @@
+{
+    "name": "Broken Mirror",
+    "version": "1.0.0",
+    "type": "WebSocket Server",
+    "description": "Broken Mirror",
+    "path": "Broken Mirror",
+    "scripts": [ "broken-mirror.js" ],
+    "defaults": {
+        "Protocol": "JSON",
+        "Auto Add": false,
+        "Local Port": 5174,
+        "Use Secure Connection": false
+    },
+    "hideDefaultParameters": [
+        "autoAdd",
+        "protocol",
+        "messageStructure",
+        "customSeparator",
+        "firstValueIsTheName",
+        "pass_through"
+    ],
+    "values": {
+        "Screens": {
+            "type": "Container"
+        }
+    },
+    "commands": {
+        "createContainer": {
+            "path": "createContainer",
+            "type": "function",
+            "parameters": [
+                {
+                    "name": "id",
+                    "type": "number"
+                }
+            ]
+        }
+    }
+}

@@ -89,8 +89,8 @@ const ROTATION_SENSITIVITY = 0.005;
 const ZOOM_SENSITIVITY = 0.002;
 
 let zoom = 1;
-const MIN_ZOOM = 0.4;
-const MAX_ZOOM = 2.5;
+const MIN_ZOOM = 0.3;
+const MAX_ZOOM = 3;
 
 const FACE_MESH_COUNT = 478;
 

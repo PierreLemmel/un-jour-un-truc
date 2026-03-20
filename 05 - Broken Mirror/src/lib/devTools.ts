@@ -1,7 +1,7 @@
 let buffer: number[] = [];
-let lines: string[] = [];
+let debugLines: string[] = [];
 
-let state: 'idle' | 'quad' | 'triangle' = 'idle';
+let state: 'idle' | 'quad' | 'triangle' | 'line' = 'idle';
 
 export function startTriangle() {
     buffer = [];
@@ -13,8 +13,13 @@ export function startQuad() {
     state = 'quad';
 }
 
+export function startLine() {
+    buffer = [];
+    state = 'line';
+}
+
 function displayLines() {
-    console.log(lines.map(line => `    ${line},`).join('\n'));
+    console.log(debugLines.map(line => `    ${line},`).join('\n'));
 }
 
 function onPoint(idx: number) {
@@ -25,7 +30,7 @@ function onPoint(idx: number) {
     if (state === 'triangle') {
         if (buffer.length === 3) {
             const line = `t(${buffer.join(', ')})`;
-            lines.push(line);
+            debugLines.push(line);
 
             displayLines();
             buffer = [];
@@ -34,11 +39,14 @@ function onPoint(idx: number) {
     else if (state === 'quad') {
         if (buffer.length === 4) {
             const line = `q(${buffer.join(', ')})`;
-            lines.push(line);
+            debugLines.push(line);
 
             displayLines();
             buffer = [];
         }
+    }
+    else if (state === 'line') {
+        console.log(`l(${buffer.join(', ')})`);
     }
 }
 

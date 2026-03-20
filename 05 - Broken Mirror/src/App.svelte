@@ -1,11 +1,16 @@
 <script lang="ts">
     import { onDestroy, onMount } from 'svelte';
-    import { settings } from './lib/settings';
+    import { settings, SettingsRanges } from './lib/settings';
     import { cn } from './lib/utils';
     import SettingsPanel from './components/SettingsPanel.svelte';
     import { disposeGraphics, type Point3, resizeGraphics, setupGraphics, updateFaceMeshPoints, setCameraSize } from './lib/graphics';
     import DebugPanel from './components/DebugPanel.svelte';
-    import { startTriangle, startQuad } from './lib/devTools';
+    import { startTriangle, startQuad, startLine } from './lib/devTools';
+    import { initWebSocket, disposeWebSocket, ws, wsStatus } from './lib/websocket';
+    import { get } from 'svelte/store';
+    import { routeId } from './lib/route';
+    import { createStartedData, type ChataigneValueChangedMessage, type StartedMessage } from './lib/chataigne';
+    import * as THREE from 'three';
 
     let webcamEl: HTMLVideoElement;
 
@@ -75,9 +80,54 @@
         window.dispatchEvent(new CustomEvent('vision-frame'));
     }
 
+    function onChataigneMessage(message: ChataigneValueChangedMessage) {
+        const {
+            payload: {
+                property,
+                value,
+                type: propType
+            },
+            type,
+            id
+        } = message;
+
+        if (id !== $routeId) {
+            return;
+        }
+
+        if (type !== 'valueChanged') {
+            console.error('Invalid message type', message);
+            return;
+        }
+
+        if (!(property in $settings)) {
+            console.error('Invalid property', property);
+            return
+        }
+
+        switch (propType) {
+            case 'Float':
+                settings.update((s) => ({ ...s, [property]: value as number }));
+                break;
+            case 'Boolean':
+                settings.update((s) => ({ ...s, [property]: value as boolean }));
+                break;
+            case 'String':
+                settings.update((s) => ({ ...s, [property]: value as string }));
+                break;
+            case 'Color':
+                const [r, g, b, a] = value as [number, number, number, number];
+                settings.update((s) => ({ ...s, [property]: new THREE.Vector3(r * a, g * a, b * a) }));
+                break;
+        }
+    }
+
     onMount(async () => {
 
         window.addEventListener('keydown', (e) => {
+
+            if (settingsOpen) return;
+
             switch (e.key) {
                 case ' ':
                     paused = !paused;
@@ -94,11 +144,15 @@
                 case 'q':
                     startQuad();
                     break;
+                case 'l':
+                    startLine();
+                    break;
             }
 
         });
         setupGraphics(canvasEl);
         resize();
+        initWebSocket();
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         webcamEl.srcObject = stream;
@@ -131,6 +185,7 @@
 
         resizeObserver = new ResizeObserver(() => resize());
         resizeObserver.observe(containerEl);
+
     });
 
     onDestroy(() => {
@@ -145,7 +200,28 @@
         }
 
         visionWorker.terminate();
+        disposeWebSocket();
     });
+
+
+    
+    $: {
+        if ($ws && $wsStatus === 'connected') {
+
+            $ws.onmessage = (event) => {
+                const message = JSON.parse(event.data) as ChataigneValueChangedMessage;
+                onChataigneMessage(message);
+            };
+            const data = createStartedData(get(settings), SettingsRanges);
+
+            const message: StartedMessage = {
+                type: 'started',
+                id: $routeId,
+                data
+            };
+            $ws.send(JSON.stringify(message));
+        }
+    }
 </script>
 
 <main class="bg-black w-screen h-screen relative overflow-hidden">

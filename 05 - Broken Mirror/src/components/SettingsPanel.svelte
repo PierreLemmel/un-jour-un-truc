@@ -1,11 +1,33 @@
 <script lang="ts">
-    import { settings, SettingsRanges } from '../lib/settings';
+    import { resetSettingsToDefaults, settings, SettingsRanges } from '../lib/settings';
     import BooleanField from './BooleanField.svelte';
     import FloatField from './FloatField.svelte';
     import ColorField from './ColorField.svelte';
+    import StringField from './StringField.svelte';
+    import { get } from 'svelte/store';
+    import { ws } from '../lib/websocket';
+    import { createSyncData, type SyncMessage } from '../lib/chataigne';
+    import { routeId } from '../lib/route';
 
     export let open = false;
     export let onClose: () => void = () => {};
+
+    function sendSyncData() {
+        const socket = $ws;
+
+        if (!socket || socket.readyState !== socket.OPEN) {
+            return;
+        }
+
+        const data = createSyncData($settings);
+        const syncMsg: SyncMessage = {
+            type: 'sync',
+            id: $routeId,
+            data
+        }
+
+        socket.send(JSON.stringify(syncMsg))
+    }
 </script>
 
 {#if open}
@@ -29,6 +51,13 @@
                 </button>
             </div>
 
+            <StringField
+                label="WebSocket URL"
+                value={$settings.wsUrl}
+                placeholder="ws://127.0.0.1:1234"
+                oninput={(v) => settings.update((s) => ({ ...s, wsUrl: v }))}
+            />
+
             <BooleanField
                 label="Show webcam"
                 checked={$settings.showWebcam}
@@ -45,24 +74,6 @@
                 label="Mirror cam"
                 checked={$settings.mirrorCam}
                 onchange={(v) => settings.update((s) => ({ ...s, mirrorCam: v }))}
-            />
-
-            <BooleanField
-                label="Show mesh"
-                checked={$settings.showMesh}
-                onchange={(v) => settings.update((s) => ({ ...s, showMesh: v }))}
-            />
-
-            <BooleanField
-                label="Show points"
-                checked={$settings.showPoints}
-                onchange={(v) => settings.update((s) => ({ ...s, showPoints: v }))}
-            />
-
-            <BooleanField
-                label="Show face lines"
-                checked={$settings.showFaceLines}
-                onchange={(v) => settings.update((s) => ({ ...s, showFaceLines: v }))}
             />
 
             <FloatField
@@ -227,6 +238,22 @@
                 on:click={() => console.log(JSON.stringify($settings, null, 4))}
             >
                 Log settings to console
+            </button>
+
+            <button
+                class="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors duration-100 cursor-pointer"
+                type="button"
+                on:click={resetSettingsToDefaults}
+            >
+                Reset settings to defaults
+            </button>
+
+            <button
+                class="px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors duration-100 cursor-pointer"
+                type="button"
+                on:click={sendSyncData}
+            >
+                Send Sync Data
             </button>
         </div>
     </div>

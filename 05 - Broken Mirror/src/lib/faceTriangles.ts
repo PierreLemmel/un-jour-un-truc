@@ -472,8 +472,6 @@ export const FACE_TRIANGLES: [number, number, number][] = fromShapes(
     q(241, 242, 20, 238),
     t(2, 141, 94),
     t(2, 97, 141),
-    q(141, 97, 99, 242),
-    q(242, 99, 60, 20),
 
     q(141, 97, 99, 242),
     q(242, 99, 60, 20),

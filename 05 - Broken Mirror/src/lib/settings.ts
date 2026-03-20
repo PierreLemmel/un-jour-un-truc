@@ -2,12 +2,10 @@ import * as THREE from 'three';
 import { writable } from 'svelte/store';
 
 export type Settings = {
+    wsUrl: string;
     mirrorCam: boolean;
     showWebcam: boolean;
     showDebug: boolean;
-    showMesh: boolean;
-    showPoints: boolean;
-    showFaceLines: boolean;
     faceMeshMaster: number;
     faceLinesMaster: number;
     facePointsMaster: number;
@@ -50,12 +48,10 @@ export const SettingsRanges: SettingsRangesMap = {
 const STORAGE_KEY = 'face-net-settings';
 
 const DEFAULT_SETTINGS: Settings = {
+    "wsUrl": "ws://127.0.0.1:5174",
     "mirrorCam": true,
     "showWebcam": true,
     "showDebug": false,
-    "showMesh": true,
-    "showPoints": true,
-    "showFaceLines": true,
     "faceMeshMaster": 1,
     "faceLinesMaster": 1,
     "facePointsMaster": 1,
@@ -100,6 +96,9 @@ function loadInitialSettings(): Settings {
 
     const parsed = JSON.parse(stored) as Partial<Settings>;
     const result = { ...DEFAULT_SETTINGS, ...parsed };
+    if (typeof result.wsUrl !== 'string') {
+        result.wsUrl = DEFAULT_SETTINGS.wsUrl;
+    }
     for (const key of COLOR_KEYS) {
         if (parsed[key] !== undefined) {
             result[key] = toVector3(parsed[key]);
@@ -114,3 +113,8 @@ settings.subscribe((value) => {
     if (typeof localStorage === 'undefined') return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
 });
+
+export function resetSettingsToDefaults() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SETTINGS));
+    settings.set(DEFAULT_SETTINGS);
+}

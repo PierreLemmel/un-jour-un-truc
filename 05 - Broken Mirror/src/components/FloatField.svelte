@@ -20,6 +20,6 @@
         {step}
         class="w-full accent-white"
         {value}
-        oninput={(e) => oninput(parseFloat((e.currentTarget as HTMLInputElement).value))}
+        oninput={(e: Event) => oninput(parseFloat((e.currentTarget as HTMLInputElement).value))}
     />
 </label>

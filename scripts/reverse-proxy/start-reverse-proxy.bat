@@ -1,5 +1,5 @@
 @echo off
-SET LOCAL_IP=192.168.1.104
+SET LOCAL_IP=10.86.4.232
 SET NGINX_DIR=C:\nginx
 SET CONF_SOURCE=nginx.conf
 SET CONF_DEST=%NGINX_DIR%\conf\nginx.conf
